@@ -1,0 +1,54 @@
+name: "Deploy"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    name: "Terraform"
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+        working-directory: terraform
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Setup Go Environment
+        uses: actions/setup-go@v5
+      - name: Build Go Application
+        working-directory: .
+        run: |
+          GOOS=linux GOARCH=amd64 go build -o bootstrap ./cmd/bot
+          zip lambda-handler.zip bootstrap
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Setup Terraform Variables
+        run: |-
+          cat > pipeline.auto.tfvars <<EOF
+          discord_announcement_channel = "${{ secrets.DISCORD_ANNOUNCEMENT_CHANNEL }}"
+          discord_poll_channel = "${{ secrets.DISCORD_POLL_CHANNEL }}"
+          discord_test_channel = "${{ secrets.DISCORD_TEST_CHANNEL }}"
+          discord_token = "${{ secrets.DISCORD_TOKEN }}"
+          EOF
+      - name: Terraform Init
+        run: >
+          terraform init
+          -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
+          -backend-config="key=${{ secrets.TF_STATE_KEY }}"
+          -backend-config="region=${{ secrets.TF_STATE_REGION }}"
+      - name: Terraform Plan
+        run: terraform plan -input=false
+      - name: Terraform Apply
+        #if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
