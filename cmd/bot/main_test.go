@@ -38,6 +38,24 @@ func (m *MockService) PinPoll(channelID string, pollID string) error {
 	return args.Error(0)
 }
 
+func (m *MockService) UnpinPoll(channelID string, pollID string) error {
+	args := m.Called(channelID, pollID)
+	return args.Error(0)
+}
+
+func (m *MockService) GetLastPinnedPollResult(channelID string) (*poll.DatePollResult, error) {
+	args := m.Called(channelID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*poll.DatePollResult), args.Error(1)
+}
+
+func (m *MockService) ExpirePoll(channelID string, pollID string) error {
+	args := m.Called(channelID, pollID)
+	return args.Error(0)
+}
+
 func TestStartPoll(t *testing.T) {
 	t.Run("successful poll start", func(t *testing.T) {
 		mockService := new(MockService)

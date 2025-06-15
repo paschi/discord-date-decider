@@ -38,6 +38,24 @@ func (m *MockClient) ChannelMessagePin(channelID string, messageID string) error
 	return args.Error(0)
 }
 
+func (m *MockClient) ChannelMessageUnpin(channelID string, messageID string) error {
+	args := m.Called(channelID, messageID)
+	return args.Error(0)
+}
+
+func (m *MockClient) ChannelMessagesPinned(channelID string) ([]*discordgo.Message, error) {
+	args := m.Called(channelID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*discordgo.Message), args.Error(1)
+}
+
+func (m *MockClient) ExpirePoll(channelID string, messageID string) error {
+	args := m.Called(channelID, messageID)
+	return args.Error(0)
+}
+
 func TestNewDefaultService(t *testing.T) {
 	t.Run("successful initialization", func(t *testing.T) {
 		mockClient := new(MockClient)

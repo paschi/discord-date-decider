@@ -77,7 +77,7 @@ func TestToDiscordPollMessage(t *testing.T) {
 				assert.Equal(t, len(parameter.poll.Answers), len(discordPoll.Poll.Answers))
 				assert.True(t, discordPoll.Poll.AllowMultiselect)
 				for i, answer := range parameter.poll.Answers {
-					expectedText := fmt.Sprintf("%s, %02d.%02d.", answer.Weekday().String(), answer.Day(), answer.Month())
+					expectedText := fmt.Sprintf("%s, %02d.%02d.%d", answer.Weekday().String(), answer.Day(), answer.Month(), answer.Year())
 					assert.Equal(t, expectedText, discordPoll.Poll.Answers[i].Media.Text)
 				}
 			}

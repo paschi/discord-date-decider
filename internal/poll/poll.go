@@ -10,11 +10,25 @@ type DatePoll struct {
 	Expiry   time.Time
 }
 
+type DatePollResult struct {
+	PollID        string
+	WinningAnswer time.Time
+	Finalized     bool
+}
+
 func NewDatePoll(question string, year int, month time.Month, weekdays []time.Weekday) *DatePoll {
 	return &DatePoll{
 		Question: question,
 		Expiry:   time.Date(year, month, 0, 12, 0, 0, 0, time.UTC),
 		Answers:  getDates(year, month, weekdays),
+	}
+}
+
+func NewDatePollResult(pollID string, winningAnswer time.Time, finalized bool) *DatePollResult {
+	return &DatePollResult{
+		PollID:        pollID,
+		WinningAnswer: winningAnswer,
+		Finalized:     finalized,
 	}
 }
 

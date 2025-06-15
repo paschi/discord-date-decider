@@ -13,7 +13,7 @@ resource "aws_lambda_function" "lambda_function" {
   }
 }
 
-resource "aws_lambda_invocation" "test_event" {
+resource "aws_lambda_invocation" "test_event_start_poll" {
   function_name = aws_lambda_function.lambda_function.function_name
   input = jsonencode({
     action                = "startPoll"

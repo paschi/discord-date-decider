@@ -9,6 +9,9 @@ type Client interface {
 	Close() error
 	ChannelMessageSend(channelID string, data *discordgo.MessageSend) (*discordgo.Message, error)
 	ChannelMessagePin(channelID string, messageID string) error
+	ChannelMessageUnpin(channelID string, messageID string) error
+	ChannelMessagesPinned(channelID string) ([]*discordgo.Message, error)
+	ExpirePoll(channelID string, messageID string) error
 }
 
 type DefaultClient struct {
@@ -37,4 +40,17 @@ func (c *DefaultClient) ChannelMessageSend(channelID string, data *discordgo.Mes
 
 func (c *DefaultClient) ChannelMessagePin(channelID string, messageID string) error {
 	return c.session.ChannelMessagePin(channelID, messageID)
+}
+
+func (c *DefaultClient) ChannelMessageUnpin(channelID string, messageID string) error {
+	return c.session.ChannelMessageUnpin(channelID, messageID)
+}
+
+func (c *DefaultClient) ChannelMessagesPinned(channelID string) ([]*discordgo.Message, error) {
+	return c.session.ChannelMessagesPinned(channelID)
+}
+
+func (c *DefaultClient) ExpirePoll(channelID string, messageID string) error {
+	_, err := c.session.PollExpire(channelID, messageID)
+	return err
 }

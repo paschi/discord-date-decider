@@ -48,6 +48,8 @@ func handleRequest(_ context.Context, request PollRequest) error {
 	switch request.Action {
 	case "startPoll":
 		return bot.StartPoll(request)
+	case "endPoll":
+		return bot.EndPoll(request)
 	default:
 		log.Printf("unknown action: %s", request.Action)
 		return fmt.Errorf("unknown action: %s", request.Action)
@@ -91,6 +93,52 @@ func (b *Bot) StartPoll(request PollRequest) (err error) {
 	log.Printf("service successfully pinned poll to poll channel")
 	announcement := message.NewMessage(fmt.Sprintf(`@here :wave: Hey! I justed posted a new poll for %s :calendar:. Check it out! :eyes:
 -# Beep boop. I'm a bot. :robot:`, month), true)
+	messageID, err := b.service.SendMessage(request.AnnouncementChannelID, announcement)
+	if err != nil {
+		log.Printf("service could not send message to announcement channel: %v", err)
+		return
+	}
+	log.Printf("service successfully sent message to announcement channel: %s", messageID)
+	return
+}
+
+func (b *Bot) EndPoll(request PollRequest) (err error) {
+	log.Printf("executing 'endPoll' request: %+v", request)
+	err = b.service.Open()
+	if err != nil {
+		log.Printf("could not open service: %v", err)
+		return
+	}
+	defer func() {
+		if closeErr := b.service.Close(); closeErr != nil {
+			log.Printf("could not close service: %v", closeErr)
+			if err == nil {
+				err = closeErr
+			}
+		}
+	}()
+	result, err := b.service.GetLastPinnedPollResult(request.PollChannelID)
+	if err != nil {
+		log.Printf("could not retrieve last poll result: %v", err)
+		return
+	}
+	log.Printf("successfully retrieved last poll result: %+v", result)
+	if !result.Finalized {
+		err = b.service.ExpirePoll(request.PollChannelID, result.PollID)
+		if err != nil {
+			log.Printf("could not expire poll result: %v", err)
+			return
+		}
+		log.Printf("successfully expired poll")
+	}
+	err = b.service.UnpinPoll(request.PollChannelID, result.PollID)
+	if err != nil {
+		log.Printf("could not unpin poll from poll channel: %v", err)
+		return
+	}
+	log.Printf("service successfully unpinned poll from poll channel")
+	announcement := message.NewMessage(fmt.Sprintf(`@here We have a winner :trophy:! The next event happens at %s :calendar:. See you then!
+-# Beep boop. I'm a bot. :robot:`, result.WinningAnswer), true)
 	messageID, err := b.service.SendMessage(request.AnnouncementChannelID, announcement)
 	if err != nil {
 		log.Printf("service could not send message to announcement channel: %v", err)
