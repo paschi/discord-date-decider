@@ -41,8 +41,52 @@ func toDiscordAnswers(answers []time.Time) []discordgo.PollAnswer {
 	var discordAnswers []discordgo.PollAnswer
 	for _, answer := range answers {
 		discordAnswers = append(discordAnswers, discordgo.PollAnswer{Media: &discordgo.PollMedia{
-			Text: fmt.Sprintf("%s, %02d.%02d.", answer.Weekday().String(), answer.Day(), answer.Month()),
+			Text: fmt.Sprintf("%s, %02d.%02d.%d", answer.Weekday().String(), answer.Day(), answer.Month(), answer.Year()),
 		}})
 	}
 	return discordAnswers
+}
+
+func toDatePollResult(discordMessage *discordgo.Message, location *time.Location) (*poll.DatePollResult, error) {
+	discordPoll := discordMessage.Poll
+	if discordPoll == nil {
+		return nil, fmt.Errorf("no poll message")
+	}
+	var highestCount int
+	var winningAnswerIDs []int
+	for i, answerCount := range discordPoll.Results.AnswerCounts {
+		if i == 0 || answerCount.Count > highestCount {
+			highestCount = answerCount.Count
+			winningAnswerIDs = nil
+		}
+		if highestCount == answerCount.Count {
+			winningAnswerIDs = append(winningAnswerIDs, answerCount.ID)
+		}
+	}
+	if len(winningAnswerIDs) == 0 {
+		return nil, fmt.Errorf("could not find a winning answer for this poll: %+v, %+v, %+v, %+v", discordPoll, discordPoll.Answers, discordPoll.Results, discordPoll.Results.AnswerCounts)
+	}
+	var winningDates []time.Time
+	for _, answer := range discordPoll.Answers {
+		if contains(winningAnswerIDs, answer.AnswerID) {
+			dateStr := answer.Media.Text
+			var weekday string
+			var day, month, year int
+			_, err := fmt.Sscanf(dateStr, "%s %02d.%02d.%d", &weekday, &day, &month, &year)
+			if err != nil {
+				return nil, err
+			}
+			winningDates = append(winningDates, time.Date(year, time.Month(month), day, 20, 0, 0, 0, location))
+		}
+	}
+	return poll.NewDatePollResult(discordMessage.ID, winningDates, discordPoll.Results.Finalized), nil
+}
+
+func contains(s []int, e int) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }

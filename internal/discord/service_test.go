@@ -38,6 +38,24 @@ func (m *MockClient) ChannelMessagePin(channelID string, messageID string) error
 	return args.Error(0)
 }
 
+func (m *MockClient) ChannelMessageUnpin(channelID string, messageID string) error {
+	args := m.Called(channelID, messageID)
+	return args.Error(0)
+}
+
+func (m *MockClient) ChannelMessagesPinned(channelID string) ([]*discordgo.Message, error) {
+	args := m.Called(channelID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*discordgo.Message), args.Error(1)
+}
+
+func (m *MockClient) ExpirePoll(channelID string, messageID string) error {
+	args := m.Called(channelID, messageID)
+	return args.Error(0)
+}
+
 func TestNewDefaultService(t *testing.T) {
 	t.Run("successful initialization", func(t *testing.T) {
 		mockClient := new(MockClient)
@@ -141,7 +159,7 @@ func TestDefaultService_SendPoll(t *testing.T) {
 		mockClient := new(MockClient)
 		channelID := "test-channel"
 		futureDate := time.Now().AddDate(0, 1, 0)
-		testPoll := poll.NewDatePoll("Test Poll", futureDate.Year(), futureDate.Month(), []time.Weekday{time.Friday, time.Saturday})
+		testPoll := poll.NewDatePoll("Test Poll", futureDate.Year(), futureDate.Month(), []time.Weekday{time.Friday, time.Saturday}, time.UTC)
 		discordMessage := &discordgo.Message{ID: "poll-id"}
 		mockClient.On("ChannelMessageSend", channelID, mock.AnythingOfType("*discordgo.MessageSend")).
 			Return(discordMessage, nil)
@@ -158,7 +176,7 @@ func TestDefaultService_SendPoll(t *testing.T) {
 		mockClient := new(MockClient)
 		channelID := "test-channel"
 		futureDate := time.Now().AddDate(0, 1, 0)
-		testPoll := poll.NewDatePoll("Test Poll", futureDate.Year(), futureDate.Month(), []time.Weekday{time.Friday, time.Saturday})
+		testPoll := poll.NewDatePoll("Test Poll", futureDate.Year(), futureDate.Month(), []time.Weekday{time.Friday, time.Saturday}, time.UTC)
 		expectedErr := errors.New("send error")
 
 		mockClient.On("ChannelMessageSend", channelID, mock.AnythingOfType("*discordgo.MessageSend")).
@@ -177,7 +195,7 @@ func TestDefaultService_SendPoll(t *testing.T) {
 		mockClient := new(MockClient)
 		channelID := "test-channel"
 		pastDate := time.Now().AddDate(0, -1, 0)
-		testPoll := poll.NewDatePoll("Test Poll", pastDate.Year(), pastDate.Month(), []time.Weekday{time.Friday, time.Saturday})
+		testPoll := poll.NewDatePoll("Test Poll", pastDate.Year(), pastDate.Month(), []time.Weekday{time.Friday, time.Saturday}, time.UTC)
 
 		service := NewDefaultService(mockClient)
 		pollID, err := service.SendPoll(channelID, testPoll)

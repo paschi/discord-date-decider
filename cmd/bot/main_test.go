@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
+	"time"
 )
 
 type MockService struct {
@@ -34,6 +35,24 @@ func (m *MockService) SendPoll(channelID string, poll *poll.DatePoll) (string, e
 }
 
 func (m *MockService) PinPoll(channelID string, pollID string) error {
+	args := m.Called(channelID, pollID)
+	return args.Error(0)
+}
+
+func (m *MockService) UnpinPoll(channelID string, pollID string) error {
+	args := m.Called(channelID, pollID)
+	return args.Error(0)
+}
+
+func (m *MockService) GetLastPinnedPollResult(channelID string, location *time.Location) (*poll.DatePollResult, error) {
+	args := m.Called(channelID, location)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*poll.DatePollResult), args.Error(1)
+}
+
+func (m *MockService) ExpirePoll(channelID string, pollID string) error {
 	args := m.Called(channelID, pollID)
 	return args.Error(0)
 }

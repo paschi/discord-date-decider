@@ -21,16 +21,16 @@ func TestNewDatePoll(t *testing.T) {
 			month:    time.May,
 			weekdays: []time.Weekday{time.Friday, time.Saturday},
 			expectedAnswers: []time.Time{
-				time.Date(2025, 5, 2, 12, 0, 0, 0, time.UTC),
-				time.Date(2025, 5, 3, 12, 0, 0, 0, time.UTC),
-				time.Date(2025, 5, 9, 12, 0, 0, 0, time.UTC),
-				time.Date(2025, 5, 10, 12, 0, 0, 0, time.UTC),
-				time.Date(2025, 5, 16, 12, 0, 0, 0, time.UTC),
-				time.Date(2025, 5, 17, 12, 0, 0, 0, time.UTC),
-				time.Date(2025, 5, 23, 12, 0, 0, 0, time.UTC),
-				time.Date(2025, 5, 24, 12, 0, 0, 0, time.UTC),
-				time.Date(2025, 5, 30, 12, 0, 0, 0, time.UTC),
-				time.Date(2025, 5, 31, 12, 0, 0, 0, time.UTC),
+				time.Date(2025, 5, 2, 20, 0, 0, 0, time.UTC),
+				time.Date(2025, 5, 3, 20, 0, 0, 0, time.UTC),
+				time.Date(2025, 5, 9, 20, 0, 0, 0, time.UTC),
+				time.Date(2025, 5, 10, 20, 0, 0, 0, time.UTC),
+				time.Date(2025, 5, 16, 20, 0, 0, 0, time.UTC),
+				time.Date(2025, 5, 17, 20, 0, 0, 0, time.UTC),
+				time.Date(2025, 5, 23, 20, 0, 0, 0, time.UTC),
+				time.Date(2025, 5, 24, 20, 0, 0, 0, time.UTC),
+				time.Date(2025, 5, 30, 20, 0, 0, 0, time.UTC),
+				time.Date(2025, 5, 31, 20, 0, 0, 0, time.UTC),
 			},
 			expectedExpiry: time.Date(2025, 4, 30, 12, 0, 0, 0, time.UTC),
 		},
@@ -40,10 +40,10 @@ func TestNewDatePoll(t *testing.T) {
 			month:    time.December,
 			weekdays: []time.Weekday{time.Friday},
 			expectedAnswers: []time.Time{
-				time.Date(2025, 12, 5, 12, 0, 0, 0, time.UTC),
-				time.Date(2025, 12, 12, 12, 0, 0, 0, time.UTC),
-				time.Date(2025, 12, 19, 12, 0, 0, 0, time.UTC),
-				time.Date(2025, 12, 26, 12, 0, 0, 0, time.UTC),
+				time.Date(2025, 12, 5, 20, 0, 0, 0, time.UTC),
+				time.Date(2025, 12, 12, 20, 0, 0, 0, time.UTC),
+				time.Date(2025, 12, 19, 20, 0, 0, 0, time.UTC),
+				time.Date(2025, 12, 26, 20, 0, 0, 0, time.UTC),
 			},
 			expectedExpiry: time.Date(2025, 11, 30, 12, 0, 0, 0, time.UTC),
 		},
@@ -53,11 +53,11 @@ func TestNewDatePoll(t *testing.T) {
 			month:    time.January,
 			weekdays: []time.Weekday{time.Saturday},
 			expectedAnswers: []time.Time{
-				time.Date(2026, 1, 3, 12, 0, 0, 0, time.UTC),
-				time.Date(2026, 1, 10, 12, 0, 0, 0, time.UTC),
-				time.Date(2026, 1, 17, 12, 0, 0, 0, time.UTC),
-				time.Date(2026, 1, 24, 12, 0, 0, 0, time.UTC),
-				time.Date(2026, 1, 31, 12, 0, 0, 0, time.UTC),
+				time.Date(2026, 1, 3, 20, 0, 0, 0, time.UTC),
+				time.Date(2026, 1, 10, 20, 0, 0, 0, time.UTC),
+				time.Date(2026, 1, 17, 20, 0, 0, 0, time.UTC),
+				time.Date(2026, 1, 24, 20, 0, 0, 0, time.UTC),
+				time.Date(2026, 1, 31, 20, 0, 0, 0, time.UTC),
 			},
 			expectedExpiry: time.Date(2025, 12, 31, 12, 0, 0, 0, time.UTC),
 		},
@@ -67,11 +67,11 @@ func TestNewDatePoll(t *testing.T) {
 			month:    time.March,
 			weekdays: []time.Weekday{time.Wednesday},
 			expectedAnswers: []time.Time{
-				time.Date(2028, 3, 1, 12, 0, 0, 0, time.UTC),
-				time.Date(2028, 3, 8, 12, 0, 0, 0, time.UTC),
-				time.Date(2028, 3, 15, 12, 0, 0, 0, time.UTC),
-				time.Date(2028, 3, 22, 12, 0, 0, 0, time.UTC),
-				time.Date(2028, 3, 29, 12, 0, 0, 0, time.UTC),
+				time.Date(2028, 3, 1, 20, 0, 0, 0, time.UTC),
+				time.Date(2028, 3, 8, 20, 0, 0, 0, time.UTC),
+				time.Date(2028, 3, 15, 20, 0, 0, 0, time.UTC),
+				time.Date(2028, 3, 22, 20, 0, 0, 0, time.UTC),
+				time.Date(2028, 3, 29, 20, 0, 0, 0, time.UTC),
 			},
 			expectedExpiry: time.Date(2028, 2, 29, 12, 0, 0, 0, time.UTC),
 		},
@@ -79,7 +79,7 @@ func TestNewDatePoll(t *testing.T) {
 
 	for _, parameter := range parameters {
 		t.Run(parameter.name, func(t *testing.T) {
-			poll := NewDatePoll("TestQuestion", parameter.year, parameter.month, parameter.weekdays)
+			poll := NewDatePoll("TestQuestion", parameter.year, parameter.month, parameter.weekdays, time.UTC)
 
 			assert.NotNil(t, poll)
 			assert.Equal(t, "TestQuestion", poll.Question)
