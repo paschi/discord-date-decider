@@ -38,7 +38,6 @@ jobs:
           cat > pipeline.auto.tfvars <<EOF
           discord_announcement_channel = "${{ secrets.DISCORD_ANNOUNCEMENT_CHANNEL }}"
           discord_poll_channel = "${{ secrets.DISCORD_POLL_CHANNEL }}"
-          discord_test_channel = "${{ secrets.DISCORD_TEST_CHANNEL }}"
           discord_token = "${{ secrets.DISCORD_TOKEN }}"
           EOF
       - name: Terraform Init
