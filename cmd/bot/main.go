@@ -33,6 +33,8 @@ type PollRequest struct {
 	TimeZone              string `json:"timeZone"`
 	Title                 string `json:"title"`
 	Message               string `json:"message"`
+	AdditionalDays        []int  `json:"additionalDays"`
+	ExcludedDays          []int  `json:"excludedDays"`
 }
 
 func main() {
@@ -96,7 +98,7 @@ func (b *Bot) StartPoll(request PollRequest) (err error) {
 		return
 	}
 	pollTitle := getOrDefault(request.Title, defaultPollTitle)
-	datePoll := poll.NewDatePoll(fmt.Sprintf(pollTitle, month, year), year, month, []time.Weekday{time.Friday, time.Saturday}, location)
+	datePoll := poll.NewDatePoll(fmt.Sprintf(pollTitle, month, year), year, month, []time.Weekday{time.Friday, time.Saturday}, location, request.AdditionalDays, request.ExcludedDays)
 	pollID, err := b.service.SendPoll(request.PollChannelID, datePoll)
 	if err != nil {
 		log.Printf("service could not send poll to poll channel: %v", err)

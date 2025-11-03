@@ -53,12 +53,12 @@ func TestToDiscordPollMessage(t *testing.T) {
 	}{
 		{
 			name:        "valid poll",
-			poll:        poll.NewDatePoll("Test Poll Question", futureDate.Year(), futureDate.Month(), []time.Weekday{time.Friday, time.Saturday}, time.UTC),
+			poll:        poll.NewDatePoll("Test Poll Question", futureDate.Year(), futureDate.Month(), []time.Weekday{time.Friday, time.Saturday}, time.UTC, []int{}, []int{}),
 			expectError: false,
 		},
 		{
 			name:        "expired poll",
-			poll:        poll.NewDatePoll("Expired Poll Question", pastDate.Year(), pastDate.Month(), []time.Weekday{time.Friday, time.Saturday}, time.UTC),
+			poll:        poll.NewDatePoll("Expired Poll Question", pastDate.Year(), pastDate.Month(), []time.Weekday{time.Friday, time.Saturday}, time.UTC, []int{}, []int{}),
 			expectError: true,
 		},
 	}

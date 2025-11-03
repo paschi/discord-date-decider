@@ -35,6 +35,30 @@ resource "aws_scheduler_schedule" "start_poll_schedule" {
   }
 }
 
+resource "aws_scheduler_schedule" "start_poll_schedule_december" {
+  name                         = var.start_poll_schedule_name_december
+  schedule_expression          = var.start_poll_schedule_expression_december
+  schedule_expression_timezone = var.time_zone
+  flexible_time_window {
+    mode                      = var.start_poll_schedule_flexible_time_window_mode
+    maximum_window_in_minutes = var.start_poll_schedule_flexible_time_window_in_minutes
+  }
+  target {
+    arn      = aws_lambda_function.lambda_function.arn
+    role_arn = aws_iam_role.scheduler_role.arn
+    input = jsonencode({
+      action                = "startPoll"
+      pollChannelId         = var.discord_poll_channel
+      announcementChannelId = var.discord_announcement_channel
+      timeZone              = var.time_zone
+      message               = var.start_poll_message
+      title                 = var.start_poll_title
+      additionalDays        = [26, 27, 28, 29, 30]
+      excludedDays          = [23, 24, 25, 31]
+    })
+  }
+}
+
 resource "aws_scheduler_schedule" "end_poll_schedule" {
   name                         = var.end_poll_schedule_name
   schedule_expression          = var.end_poll_schedule_expression

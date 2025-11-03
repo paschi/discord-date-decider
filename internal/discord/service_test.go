@@ -160,7 +160,7 @@ func TestDefaultService_SendPoll(t *testing.T) {
 		mockClient := new(MockClient)
 		channelID := "test-channel"
 		futureDate := time.Now().AddDate(0, 1, 0)
-		testPoll := poll.NewDatePoll("Test Poll", futureDate.Year(), futureDate.Month(), []time.Weekday{time.Friday, time.Saturday}, time.UTC)
+		testPoll := poll.NewDatePoll("Test Poll", futureDate.Year(), futureDate.Month(), []time.Weekday{time.Friday, time.Saturday}, time.UTC, []int{}, []int{})
 		discordMessage := &discordgo.Message{ID: "poll-id"}
 		mockClient.On("ChannelMessageSend", channelID, mock.AnythingOfType("*discordgo.MessageSend")).
 			Return(discordMessage, nil)
@@ -177,7 +177,7 @@ func TestDefaultService_SendPoll(t *testing.T) {
 		mockClient := new(MockClient)
 		channelID := "test-channel"
 		futureDate := time.Now().AddDate(0, 1, 0)
-		testPoll := poll.NewDatePoll("Test Poll", futureDate.Year(), futureDate.Month(), []time.Weekday{time.Friday, time.Saturday}, time.UTC)
+		testPoll := poll.NewDatePoll("Test Poll", futureDate.Year(), futureDate.Month(), []time.Weekday{time.Friday, time.Saturday}, time.UTC, []int{}, []int{})
 		expectedErr := errors.New("send error")
 
 		mockClient.On("ChannelMessageSend", channelID, mock.AnythingOfType("*discordgo.MessageSend")).
@@ -196,7 +196,7 @@ func TestDefaultService_SendPoll(t *testing.T) {
 		mockClient := new(MockClient)
 		channelID := "test-channel"
 		pastDate := time.Now().AddDate(0, -1, 0)
-		testPoll := poll.NewDatePoll("Test Poll", pastDate.Year(), pastDate.Month(), []time.Weekday{time.Friday, time.Saturday}, time.UTC)
+		testPoll := poll.NewDatePoll("Test Poll", pastDate.Year(), pastDate.Month(), []time.Weekday{time.Friday, time.Saturday}, time.UTC, []int{}, []int{})
 
 		service := NewDefaultService(mockClient)
 		pollID, err := service.SendPoll(channelID, testPoll)

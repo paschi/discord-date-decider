@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+const maxAnswers = 10
+
 type DatePoll struct {
 	Question string
 	Answers  []time.Time
@@ -16,11 +18,11 @@ type DatePollResult struct {
 	Finalized      bool
 }
 
-func NewDatePoll(question string, year int, month time.Month, weekdays []time.Weekday, location *time.Location) *DatePoll {
+func NewDatePoll(question string, year int, month time.Month, weekdays []time.Weekday, location *time.Location, additionalDays []int, excludedDays []int) *DatePoll {
 	return &DatePoll{
 		Question: question,
 		Expiry:   time.Date(year, month, 0, 12, 0, 0, 0, location),
-		Answers:  getDates(year, month, weekdays, location),
+		Answers:  getDates(year, month, weekdays, location, additionalDays, excludedDays),
 	}
 }
 
@@ -32,17 +34,30 @@ func NewDatePollResult(pollID string, winningAnswers []time.Time, finalized bool
 	}
 }
 
-func getDates(year int, month time.Month, weekdays []time.Weekday, location *time.Location) []time.Time {
+func getDates(year int, month time.Month, weekdays []time.Weekday, location *time.Location, additionalDays []int, excludedDays []int) []time.Time {
 	var dates []time.Time
+	count := 0
 	firstDay := time.Date(year, month, 1, 20, 0, 0, 0, location)
 	lastDay := time.Date(year, month+1, 0, 20, 0, 0, 0, location)
 	for day := firstDay; day.Before(lastDay.AddDate(0, 0, 1)); day = day.AddDate(0, 0, 1) {
-		for _, weekday := range weekdays {
-			if day.Weekday() == weekday {
+		if contains(excludedDays, day.Day()) {
+			continue
+		}
+		if contains(weekdays, day.Weekday()) || contains(additionalDays, day.Day()) {
+			if count < maxAnswers {
 				dates = append(dates, day)
-				break
+				count++
 			}
 		}
 	}
 	return dates
+}
+
+func contains[T comparable](s []T, e T) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }

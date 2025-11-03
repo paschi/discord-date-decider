@@ -18,12 +18,17 @@ variable "lambda_function_name" {
 
 variable "start_poll_message" {
   type    = string
-  default = "@here :wave: Huhu! Ich habe gerade eine neue Umfrage für die nächste WAN-Party im **%s** gepostet :calendar:. Schaut mal rein und stimmt ab! :eyes: \n-# Beep boop. Ich bin ein Bot. :robot:"
+  default = "@here :wave: Huhu! Ich habe gerade eine neue **Umfrage** für die nächste **WAN-Party** im **%s** gepostet :calendar:. Schaut mal rein und stimmt ab! :eyes: \n-# Beep boop. Ich bin ein Bot. :robot:"
 }
 
 variable "start_poll_schedule_expression" {
   type    = string
-  default = "cron(0 20 15 1,2,3,4,7,8,9,10,11,12 ? *)"
+  default = "cron(0 20 15 1,2,3,4,7,8,9,10,12 ? *)"
+}
+
+variable "start_poll_schedule_expression_december" {
+  type    = string
+  default = "cron(0 20 15 11 ? *)"
 }
 
 variable "start_poll_schedule_flexible_time_window_mode" {
@@ -41,6 +46,11 @@ variable "start_poll_schedule_name" {
   default = "discord-date-decider-start-poll"
 }
 
+variable "start_poll_schedule_name_december" {
+  type    = string
+  default = "discord-date-decider-start-poll-december"
+}
+
 variable "start_poll_title" {
   type    = string
   default = "WAN-Party %s %d"
@@ -48,7 +58,7 @@ variable "start_poll_title" {
 
 variable "end_poll_message" {
   type    = string
-  default = "@here Wir haben einen Gewinner :trophy:! Die nächste WAN-Party findet statt am <t:%d:F> :calendar:. Bis dahin! \n-# Beep boop. Ich bin ein Bot. :robot:"
+  default = "@here Wir haben einen Gewinner :trophy:! Die nächste WAN-Party findet am <t:%d:F> statt :calendar:. Bis dahin! \n-# Beep boop. Ich bin ein Bot. :robot:"
 }
 
 variable "end_poll_schedule_expression" {
