@@ -1,11 +1,11 @@
 resource "aws_lambda_function" "lambda_function" {
-  function_name = var.lambda_function_name
-  filename      = "../lambda-handler.zip"
-  handler       = "bootstrap"
-  role          = aws_iam_role.lambda_role.arn
+  function_name    = var.lambda_function_name
+  filename         = "../lambda-handler.zip"
+  handler          = "bootstrap"
+  role             = aws_iam_role.lambda_role.arn
   source_code_hash = filebase64sha256("../lambda-handler.zip")
-  runtime       = "provided.al2023"
-  timeout       = 10
+  runtime          = "provided.al2023"
+  timeout          = 10
   environment {
     variables = {
       DISCORD_TOKEN = var.discord_token
@@ -29,6 +29,8 @@ resource "aws_scheduler_schedule" "start_poll_schedule" {
       pollChannelId         = var.discord_poll_channel
       announcementChannelId = var.discord_announcement_channel
       timeZone              = var.time_zone
+      message               = var.start_poll_message
+      title                 = var.start_poll_title
     })
   }
 }
@@ -49,6 +51,8 @@ resource "aws_scheduler_schedule" "end_poll_schedule" {
       pollChannelId         = var.discord_poll_channel
       announcementChannelId = var.discord_announcement_channel
       timeZone              = var.time_zone
+      message               = var.end_poll_message
+      title                 = var.end_poll_title
     })
   }
 }

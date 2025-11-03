@@ -14,6 +14,14 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
+const (
+	defaultPollTitle        = "Poll for %s %d"
+	defaultStartPollMessage = `@here :wave: Hey! I just posted a new poll for %s :calendar:. Check it out! :eyes:
+-# Beep boop. I'm a bot. :robot:`
+	defaultEndPollMessage = `@here We have a winner :trophy:! The next event happens on <t:%d:F> :calendar:. See you then!
+-# Beep boop. I'm a bot. :robot:`
+)
+
 type Bot struct {
 	service discord.Service
 }
@@ -23,6 +31,8 @@ type PollRequest struct {
 	PollChannelID         string `json:"pollChannelId"`
 	AnnouncementChannelID string `json:"announcementChannelId"`
 	TimeZone              string `json:"timeZone"`
+	Title                 string `json:"title"`
+	Message               string `json:"message"`
 }
 
 func main() {
@@ -85,7 +95,8 @@ func (b *Bot) StartPoll(request PollRequest) (err error) {
 		log.Printf("could not load location '%s': %v", request.TimeZone, err)
 		return
 	}
-	datePoll := poll.NewDatePoll(fmt.Sprintf("Poll for %s %d", month, year), year, month, []time.Weekday{time.Friday, time.Saturday}, location)
+	pollTitle := getOrDefault(request.Title, defaultPollTitle)
+	datePoll := poll.NewDatePoll(fmt.Sprintf(pollTitle, month, year), year, month, []time.Weekday{time.Friday, time.Saturday}, location)
 	pollID, err := b.service.SendPoll(request.PollChannelID, datePoll)
 	if err != nil {
 		log.Printf("service could not send poll to poll channel: %v", err)
@@ -98,8 +109,8 @@ func (b *Bot) StartPoll(request PollRequest) (err error) {
 		return
 	}
 	log.Printf("service successfully pinned poll to poll channel")
-	announcement := message.NewMessage(fmt.Sprintf(`@here :wave: Hey! I justed posted a new poll for %s :calendar:. Check it out! :eyes:
--# Beep boop. I'm a bot. :robot:`, month), true)
+	messageText := getOrDefault(request.Message, defaultStartPollMessage)
+	announcement := message.NewMessage(fmt.Sprintf(messageText, month), true)
 	messageID, err := b.service.SendMessage(request.AnnouncementChannelID, announcement)
 	if err != nil {
 		log.Printf("service could not send message to announcement channel: %v", err)
@@ -145,8 +156,8 @@ func (b *Bot) EndPoll(request PollRequest) (err error) {
 		return
 	}
 	log.Printf("service successfully unpinned poll from poll channel")
-	announcement := message.NewMessage(fmt.Sprintf(`@here We have a winner :trophy:! The next event happens on <t:%d:F> :calendar:. See you then!
--# Beep boop. I'm a bot. :robot:`, getEarliestTime(result.WinningAnswers).Unix()), true)
+	messageText := getOrDefault(request.Message, defaultEndPollMessage)
+	announcement := message.NewMessage(fmt.Sprintf(messageText, getEarliestTime(result.WinningAnswers).Unix()), true)
 	messageID, err := b.service.SendMessage(request.AnnouncementChannelID, announcement)
 	if err != nil {
 		log.Printf("service could not send message to announcement channel: %v", err)
@@ -173,4 +184,11 @@ func getEarliestTime(times []time.Time) time.Time {
 		}
 	}
 	return earliest
+}
+
+func getOrDefault(value string, defaultValue string) string {
+	if value == "" {
+		return defaultValue
+	}
+	return value
 }
