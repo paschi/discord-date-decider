@@ -29,6 +29,7 @@ resource "aws_scheduler_schedule" "start_poll_schedule" {
       pollChannelId         = var.discord_poll_channel
       announcementChannelId = var.discord_announcement_channel
       timeZone              = var.time_zone
+      locale                = var.locale
       message               = var.start_poll_message
       title                 = var.start_poll_title
     })
@@ -51,6 +52,7 @@ resource "aws_scheduler_schedule" "start_poll_schedule_december" {
       pollChannelId         = var.discord_poll_channel
       announcementChannelId = var.discord_announcement_channel
       timeZone              = var.time_zone
+      locale                = var.locale
       message               = var.start_poll_message
       title                 = var.start_poll_title
       additionalDays        = [26, 27, 28, 29, 30]
@@ -75,6 +77,7 @@ resource "aws_scheduler_schedule" "end_poll_schedule" {
       pollChannelId         = var.discord_poll_channel
       announcementChannelId = var.discord_announcement_channel
       timeZone              = var.time_zone
+      locale                = var.locale
       message               = var.end_poll_message
       title                 = var.end_poll_title
     })

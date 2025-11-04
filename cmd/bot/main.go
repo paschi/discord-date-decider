@@ -12,14 +12,15 @@ import (
 	"github.com/paschi/discord-date-decider/internal/poll"
 
 	"github.com/aws/aws-lambda-go/lambda"
+
+	"github.com/klauspost/lctime"
 )
 
 const (
+	defaultLocale           = "en_US"
 	defaultPollTitle        = "Poll for %s %d"
-	defaultStartPollMessage = `@here :wave: Hey! I just posted a new poll for %s :calendar:. Check it out! :eyes:
--# Beep boop. I'm a bot. :robot:`
-	defaultEndPollMessage = `@here We have a winner :trophy:! The next event happens on <t:%d:F> :calendar:. See you then!
--# Beep boop. I'm a bot. :robot:`
+	defaultStartPollMessage = "@here :wave: Hey! I just posted a new poll for %s :calendar:. Check it out! :eyes:"
+	defaultEndPollMessage   = "@here We have a winner :trophy:! The next event happens on <t:%d:F> :calendar:. See you then!"
 )
 
 type Bot struct {
@@ -31,6 +32,7 @@ type PollRequest struct {
 	PollChannelID         string `json:"pollChannelId"`
 	AnnouncementChannelID string `json:"announcementChannelId"`
 	TimeZone              string `json:"timeZone"`
+	Locale                string `json:"locale"`
 	Title                 string `json:"title"`
 	Message               string `json:"message"`
 	AdditionalDays        []int  `json:"additionalDays"`
@@ -91,14 +93,21 @@ func (b *Bot) StartPoll(request PollRequest) (err error) {
 			}
 		}
 	}()
-	year, month := getNextMonth(time.Now())
+	nextMonth := time.Now().AddDate(0, 1, 0)
+	year, month := nextMonth.Year(), nextMonth.Month()
 	location, err := time.LoadLocation(request.TimeZone)
 	if err != nil {
 		log.Printf("could not load location '%s': %v", request.TimeZone, err)
 		return
 	}
-	pollTitle := getOrDefault(request.Title, defaultPollTitle)
-	datePoll := poll.NewDatePoll(fmt.Sprintf(pollTitle, month, year), year, month, []time.Weekday{time.Friday, time.Saturday}, location, request.AdditionalDays, request.ExcludedDays)
+	locale := getOrDefault(request.Locale, defaultLocale)
+	err = lctime.SetLocale(locale)
+	if err != nil {
+		log.Printf("could not load locale: %s", locale)
+		return
+	}
+	pollTitle := fmt.Sprintf(getOrDefault(request.Title, defaultPollTitle), lctime.Strftime("%B", nextMonth), year)
+	datePoll := poll.NewDatePoll(pollTitle, year, month, []time.Weekday{time.Friday, time.Saturday}, location, request.AdditionalDays, request.ExcludedDays)
 	pollID, err := b.service.SendPoll(request.PollChannelID, datePoll)
 	if err != nil {
 		log.Printf("service could not send poll to poll channel: %v", err)
@@ -111,8 +120,8 @@ func (b *Bot) StartPoll(request PollRequest) (err error) {
 		return
 	}
 	log.Printf("service successfully pinned poll to poll channel")
-	messageText := getOrDefault(request.Message, defaultStartPollMessage)
-	announcement := message.NewMessage(fmt.Sprintf(messageText, month), true)
+	messageText := fmt.Sprintf(getOrDefault(request.Message, defaultStartPollMessage), lctime.Strftime("%B", nextMonth))
+	announcement := message.NewMessage(messageText, true)
 	messageID, err := b.service.SendMessage(request.AnnouncementChannelID, announcement)
 	if err != nil {
 		log.Printf("service could not send message to announcement channel: %v", err)
@@ -158,8 +167,8 @@ func (b *Bot) EndPoll(request PollRequest) (err error) {
 		return
 	}
 	log.Printf("service successfully unpinned poll from poll channel")
-	messageText := getOrDefault(request.Message, defaultEndPollMessage)
-	announcement := message.NewMessage(fmt.Sprintf(messageText, getEarliestTime(result.WinningAnswers).Unix()), true)
+	messageText := fmt.Sprintf(getOrDefault(request.Message, defaultEndPollMessage), getEarliestTime(result.WinningAnswers).Unix())
+	announcement := message.NewMessage(messageText, true)
 	messageID, err := b.service.SendMessage(request.AnnouncementChannelID, announcement)
 	if err != nil {
 		log.Printf("service could not send message to announcement channel: %v", err)
@@ -167,11 +176,6 @@ func (b *Bot) EndPoll(request PollRequest) (err error) {
 	}
 	log.Printf("service successfully sent message to announcement channel: %s", messageID)
 	return
-}
-
-func getNextMonth(now time.Time) (int, time.Month) {
-	month := now.AddDate(0, 1, 0)
-	return month.Year(), month.Month()
 }
 
 func getEarliestTime(times []time.Time) time.Time {

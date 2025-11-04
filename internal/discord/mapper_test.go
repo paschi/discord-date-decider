@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/klauspost/lctime"
 	"github.com/paschi/discord-date-decider/internal/message"
 	"github.com/paschi/discord-date-decider/internal/poll"
 	"github.com/stretchr/testify/assert"
@@ -45,6 +46,7 @@ func TestToDiscordMessage(t *testing.T) {
 func TestToDiscordPollMessage(t *testing.T) {
 	futureDate := time.Now().AddDate(0, 1, 0)
 	pastDate := time.Now().AddDate(0, -1, 0)
+	_ = lctime.SetLocale("en_US")
 
 	parameters := []struct {
 		name        string

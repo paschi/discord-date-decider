@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/klauspost/lctime"
 	"github.com/paschi/discord-date-decider/internal/message"
 	"github.com/paschi/discord-date-decider/internal/poll"
 )
@@ -42,7 +43,7 @@ func toDiscordAnswers(answers []time.Time) []discordgo.PollAnswer {
 	var discordAnswers []discordgo.PollAnswer
 	for _, answer := range answers {
 		discordAnswers = append(discordAnswers, discordgo.PollAnswer{Media: &discordgo.PollMedia{
-			Text: fmt.Sprintf("%s, %02d.%02d.%d", answer.Weekday().String(), answer.Day(), answer.Month(), answer.Year()),
+			Text: fmt.Sprintf("%s, %02d.%02d.%d", lctime.Strftime("%A", answer), answer.Day(), answer.Month(), answer.Year()),
 		}})
 	}
 	return discordAnswers

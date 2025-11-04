@@ -18,7 +18,7 @@ variable "lambda_function_name" {
 
 variable "start_poll_message" {
   type    = string
-  default = "@here :wave: Huhu! Ich habe gerade eine neue **Umfrage** für die nächste **WAN-Party** im **%s** gepostet :calendar:. Schaut mal rein und stimmt ab! :eyes: \n-# Beep boop. Ich bin ein Bot. :robot:"
+  default = "@here :wave: Huhu! Ich habe gerade eine neue **Umfrage** für die nächste **WAN-Party** im **%s** gepostet :calendar:. Schaut mal rein und stimmt ab! :eyes:"
 }
 
 variable "start_poll_schedule_expression" {
@@ -58,7 +58,7 @@ variable "start_poll_title" {
 
 variable "end_poll_message" {
   type    = string
-  default = "@here Wir haben einen Gewinner :trophy:! Die nächste WAN-Party findet am <t:%d:F> statt :calendar:. Bis dahin! \n-# Beep boop. Ich bin ein Bot. :robot:"
+  default = "@here Wir haben einen Gewinner :trophy:! Die nächste **WAN-Party** findet am <t:%d:F> statt :calendar:. Bis dahin!"
 }
 
 variable "end_poll_schedule_expression" {
@@ -84,6 +84,11 @@ variable "end_poll_schedule_name" {
 variable "end_poll_title" {
   type    = string
   default = "WAN-Party %s %d"
+}
+
+variable "locale" {
+  type    = string
+  default = "de_DE"
 }
 
 variable "time_zone" {

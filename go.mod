@@ -5,6 +5,7 @@ go 1.24.3
 require (
 	github.com/aws/aws-lambda-go v1.49.0
 	github.com/bwmarrin/discordgo v0.29.0
+	github.com/klauspost/lctime v0.1.0
 	github.com/stretchr/testify v1.10.0
 )
 
