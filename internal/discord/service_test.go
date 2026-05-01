@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/klauspost/lctime"
 	"github.com/paschi/discord-date-decider/internal/message"
 	"github.com/paschi/discord-date-decider/internal/poll"
 	"github.com/stretchr/testify/assert"
@@ -156,6 +157,7 @@ func TestDefaultService_SendMessage(t *testing.T) {
 }
 
 func TestDefaultService_SendPoll(t *testing.T) {
+	_ = lctime.SetLocale("en_US")
 	t.Run("successful poll send", func(t *testing.T) {
 		mockClient := new(MockClient)
 		channelID := "test-channel"
